@@ -1,2 +1,1 @@
-trained plant disease prediction model link: https://drive.google.com/file/d/1aBMQZYex-SkFfwra_NdiIPYkWudABgH_/view?usp=drive_link
-py -m streamlit run main.py --server.port 8501
+https://drive.google.com/uc?id=1aBMQZYex-SkFfwra_NdiIPYkWudABgH_&export=download
