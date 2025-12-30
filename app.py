@@ -8,7 +8,7 @@ import subprocess
 import sys
 import re
 
-# ✅ NEW LINE (SESSION STATE INITIALIZATION – ADDED ONLY)
+# ✅ NEW LINE (session state init – ADDED ONLY)
 st.session_state.setdefault("open_camera", False)
 
 # ------------------ PATHS ------------------
@@ -89,55 +89,20 @@ st.set_page_config(page_title="Corn Disease Classifier", page_icon="🌽", layou
 # ------------------ BACKGROUND COLOR & STYLES ------------------
 st.markdown("""
 <style>
-.stApp {
+.stApp { background-color:#008000; }
+.app-header, .quote-card, .uploader-card {
     background-color:#008000;
+    padding:16px;
+    border-radius:14px;
 }
-
-.app-header {
-    background-color: #008000;
-    padding: 18px;
-    border-radius: 14px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.quote-card {
-    background-color: #008000;
-    border-left: 5px solid #22c55e;
-    padding: 12px;
-    border-radius: 10px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-}
-
-.uploader-card {
-    background-color:#008000;
-    padding: 16px;
-    border-radius: 14px;
-    box-shadow: 0 6px 18px rgba(175, 225, 175,0.08);
-}
-
 button {
-    background-color: #3C6301 !important;
-    color: white !important;
-    border-radius: 10px !important;
-    font-weight: 700 !important;
+    background-color:#3C6301 !important;
+    color:white !important;
+    border-radius:10px !important;
+    font-weight:700 !important;
 }
-
-button:hover {
-    background-color:#3C6301!important;
-}
-
-.footer {
-    text-align: center;
-    color: #6b7280;
-    font-size: 12px;
-}
-
-h2,p{
-    color: #ffff;
-}
+h2,p { color:#ffffff; }
+.footer { text-align:center; font-size:12px; color:#ffffff; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -146,8 +111,8 @@ st.markdown("""
 <div class="app-header">
   <div style="font-size:40px">🌽</div>
   <div>
-    <h2 style="margin:0" >Corn Disease Classifier</h2>
-    <p style="margin:0;color:#ffff">Detect corn leaf diseases using AI</p>
+    <h2>Corn Disease Classifier</h2>
+    <p>Detect corn leaf diseases using AI</p>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -184,16 +149,16 @@ with left:
         type=["jpg", "jpeg", "png"]
     )
 
-    # ✅ NEW BUTTON (OPEN CAMERA – ADDED ONLY)
+    # ✅ NEW (OPEN CAMERA BUTTON – ADDED ONLY)
     if st.button("📷 Open Camera"):
         st.session_state.open_camera = True
 
-    # ✅ NEW BUTTON (CLOSE CAMERA – ADDED ONLY)
+    # ✅ NEW (CLOSE CAMERA BUTTON – ADDED ONLY)
     if st.session_state.open_camera:
         if st.button("❌ Close Camera"):
             st.session_state.open_camera = False
 
-    # ✅ NEW CAMERA INPUT (ADDED ONLY)
+    # ✅ NEW (CAMERA INPUT – ADDED ONLY)
     camera_image = None
     if st.session_state.open_camera:
         camera_image = st.camera_input("Capture image")
@@ -207,6 +172,29 @@ if uploaded_image is not None:
     image_source = uploaded_image
 elif camera_image is not None:
     image_source = camera_image
+
+# ================== NEW MOBILE MODEL FIX (ADDED ONLY) ==================
+
+# ✅ NEW (auto-download model if missing – fixes mobile issue)
+if model is None and download_link and not os.path.exists(model_path):
+    with st.spinner("Downloading model..."):
+        success, msg = try_download_model(download_link, model_path)
+    if success:
+        try:
+            model = tf.keras.models.load_model(model_path)
+        except Exception as e:
+            model_load_error = str(e)
+    else:
+        st.error(msg)
+
+# ✅ NEW (reload model if file exists but model is None)
+if model is None and os.path.exists(model_path):
+    try:
+        model = tf.keras.models.load_model(model_path)
+    except Exception as e:
+        model_load_error = str(e)
+
+# ================== END NEW ADDITIONS ==================
 
 # ------------------ DISPLAY & PREDICT ------------------
 if image_source is not None:
@@ -223,10 +211,8 @@ if image_source is not None:
     with c2:
         if model is None:
             st.error("Model not loaded.")
-            if download_link and st.button("Download Model"):
-                with st.spinner("Downloading..."):
-                    success, msg = try_download_model(download_link, model_path)
-                st.info(msg)
+            if model_load_error:
+                st.warning(model_load_error)
         else:
             if st.button("Predict"):
                 results = predict_with_confidence(model, image_source, class_indices)
