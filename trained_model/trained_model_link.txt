@@ -1,1 +1,1 @@
-https://drive.google.com/uc?id=1aBMQZYex-SkFfwra_NdiIPYkWudABgH_&export=download
+https://github.com/nithinreddy9618/corn_disease_prediction/releases/download/v1.0/corn-or-maize-leaf-disease-dataset.h5
