@@ -7,8 +7,9 @@ import tensorflow as tf
 import streamlit as st
 import subprocess
 import sys
-import re
+import 
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 # ------------------ STREAMLIT CONFIG ------------------
 st.set_page_config(
     page_title="Corn Disease Classifier",
